@@ -1,0 +1,50 @@
+# Vibe Create — git ignore
+# Generated user projects and build artifacts (large binaries, per-user data)
+projects/
+*.zip
+*.log
+*.blend
+*.fbx
+*.glb
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.mp4
+*.mov
+
+# Dated test / benchmark run directories (generated artifacts)
+demo-dragon-*/
+image-dragon-*/
+orc-*/
+vision-*/
+vibeproof-*/
+2D-PA-*/
+score-sweep/
+generated-game/
+test-premium-*/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+.venv/
+venv/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS-generated
+Thumbs.db
+ehthumbs.db
+Desktop.ini

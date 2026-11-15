@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "1.0",
+  "project": {
+    "id": "valtherion-first-slice",
+    "name": "Valtherion Online: First Playable Slice",
+    "description": "A small first-person fantasy encounter used to prove the idea-to-game asset pipeline end to end.",
+    "status": "idea",
+    "target": {
+      "engine": "Valtherion-Online",
+      "assetFormats": ["glb", "fbx", "png"],
+      "constraints": ["Keep generated source files and review renders with each asset.", "Confirm engine import settings before runtime integration."]
+    },
+    "styleGuide": {
+      "prompt": "Moody, painterly dark fantasy; weathered stone, cold blue moonlight, restrained amber magic. Keep character proportions and materials consistent across assets.",
+      "references": [],
+      "palette": ["#182332", "#657b83", "#b68b52", "#d2c7ad"],
+      "notes": "Replace the placeholder reference path with an approved concept image before running generation stages."
+    }
+  },
+  "assets": [
+    {
+      "id": "hero",
+      "name": "Moonlit wayfarer",
+      "kind": "character",
+      "status": "planned",
+      "source": { "id": "hero-reference", "path": "inputs/hero-reference.png", "mediaType": "image/png", "format": "png" },
+      "prompt": "Create a game-ready full-body fantasy wayfarer matching the style guide. Preserve the silhouette and clothing from the approved reference; provide clean topology suitable for rigging.",
+      "requiredFormats": ["glb", "fbx", "png"],
+      "stageIds": ["hero-mesh", "hero-texture", "hero-cleanup", "hero-rig", "hero-animation", "hero-export"],
+      "outputs": []
+    },
+    {
+      "id": "ruined-courtyard",
+      "name": "Ruined courtyard",
+      "kind": "environment",
+      "status": "planned",
+      "source": { "id": "courtyard-brief", "path": "inputs/courtyard-brief.md", "mediaType": "text/markdown", "format": "md" },
+      "prompt": "A compact ruined courtyard at night, readable as a playable space with a clear entrance, central landmark, and room for one enemy encounter.",
+      "requiredFormats": ["blend", "glb", "png"],
+      "stageIds": ["courtyard-build", "courtyard-light", "courtyard-export"],
+      "outputs": []
+    },
+    {
+      "id": "warding-burst",
+      "name": "Warding burst",
+      "kind": "vfx",
+      "status": "planned",
+      "source": { "id": "vfx-brief", "path": "inputs/warding-burst-brief.md", "mediaType": "text/markdown", "format": "md" },
+      "prompt": "A short amber rune pulse around the wayfarer's hand, readable against a dark background and designed for a game-time effect.",
+      "requiredFormats": ["blend", "png"],
+      "stageIds": ["vfx-build", "vfx-review"],
+      "outputs": []
+    }
+  ],
+  "stages": [
+    { "id": "hero-mesh", "kind": "image-to-3d", "status": "planned", "dependsOn": [], "inputs": [{ "id": "hero-reference", "path": "inputs/hero-reference.png", "mediaType": "image/png" }], "outputs": [], "qualityChecks": ["Compare front and three-quarter renders against the reference.", "Inspect silhouette and mesh completeness."], "worker": { "name": "TRELLIS or Hunyuan3D", "execution": "remote" } },
+    { "id": "hero-texture", "kind": "texture", "status": "planned", "dependsOn": ["hero-mesh"], "inputs": [], "outputs": [], "qualityChecks": ["Check texture coverage and visible seams.", "Render a material preview."], "worker": { "name": "Hunyuan3D paint pipeline", "execution": "remote" } },
+    { "id": "hero-cleanup", "kind": "mesh-cleanup", "status": "planned", "dependsOn": ["hero-texture"], "inputs": [], "outputs": [], "qualityChecks": ["Open the model in Blender.", "Check normals, scale, transforms, and exportable geometry."], "worker": { "name": "Blender agent tunnel", "execution": "local" } },
+    { "id": "hero-rig", "kind": "rig", "status": "planned", "dependsOn": ["hero-cleanup"], "inputs": [], "outputs": [], "qualityChecks": ["Validate the skeleton and bind pose.", "Check deformation at shoulders, hips, and knees."], "worker": { "name": "Blender agent tunnel", "execution": "local" } },
+    { "id": "hero-animation", "kind": "animation", "status": "planned", "dependsOn": ["hero-rig"], "inputs": [], "outputs": [], "qualityChecks": ["Review idle and walk cycles in a contact sheet.", "Check that clips loop and have named actions."], "worker": { "name": "Blender agent tunnel", "execution": "local" } },
+    { "id": "hero-export", "kind": "export", "status": "planned", "dependsOn": ["hero-animation"], "inputs": [], "outputs": [], "qualityChecks": ["Export FBX and GLB.", "Re-import exports and compare against the Blender source."], "worker": { "name": "Blender agent tunnel", "execution": "local" } },
+    { "id": "courtyard-build", "kind": "scene-build", "status": "planned", "dependsOn": [], "inputs": [{ "id": "courtyard-brief", "path": "inputs/courtyard-brief.md", "mediaType": "text/markdown" }], "outputs": [], "qualityChecks": ["Check playable scale and clear navigation."], "worker": { "name": "Blender agent tunnel", "execution": "local" } },
+    { "id": "courtyard-light", "kind": "lighting", "status": "planned", "dependsOn": ["courtyard-build"], "inputs": [], "outputs": [], "qualityChecks": ["Review composition and character readability in rendered PNGs."], "worker": { "name": "Blender agent tunnel", "execution": "local" } },
+    { "id": "courtyard-export", "kind": "export", "status": "planned", "dependsOn": ["courtyard-light"], "inputs": [], "outputs": [], "qualityChecks": ["Open the exported scene in the target runtime."], "worker": { "name": "Blender agent tunnel", "execution": "local" } },
+    { "id": "vfx-build", "kind": "vfx", "status": "planned", "dependsOn": [], "inputs": [{ "id": "vfx-brief", "path": "inputs/warding-burst-brief.md", "mediaType": "text/markdown" }], "outputs": [], "qualityChecks": ["Render frames at start, peak, and end of effect."], "worker": { "name": "Blender agent tunnel", "execution": "local" } },
+    { "id": "vfx-review", "kind": "validation", "status": "planned", "dependsOn": ["vfx-build"], "inputs": [], "outputs": [], "qualityChecks": ["Inspect rendered PNG frames for clipping, readability, and alpha handling."], "worker": { "name": "Vision review", "execution": "local" } },
+    { "id": "slice-integration", "kind": "integration", "status": "planned", "dependsOn": ["hero-export", "courtyard-export", "vfx-review"], "inputs": [], "outputs": [], "qualityChecks": ["Import character, courtyard, and effect into Valtherion-Online.", "Confirm scale, materials, animation playback, and one playable encounter."], "worker": { "name": "Valtherion integration", "execution": "local" } }
+  ],
+  "scenes": [
+    { "id": "first-encounter", "name": "Moonlit courtyard encounter", "status": "planned", "assetIds": ["hero", "ruined-courtyard", "warding-burst"], "stageIds": ["courtyard-build", "courtyard-light", "courtyard-export", "vfx-build", "vfx-review", "slice-integration"], "prompt": "A short playable encounter that introduces movement, one warding ability, and a single enemy in the ruined courtyard.", "outputs": [] }
+  ],
+  "deliverables": [
+    { "id": "first-playable", "name": "First playable encounter", "status": "planned", "stageIds": ["hero-export", "courtyard-export", "vfx-review", "slice-integration"], "outputs": [], "acceptanceCriteria": ["A player can enter the courtyard, move, and trigger the warding effect.", "Character, environment, and VFX pass visual review using rendered PNGs.", "Source Blender files and runtime exports are traceable to their manifest stages."] }
+  ],
+  "metadata": {
+    "exampleStatus": "planning template; referenced inputs and outputs are not included in this repository yet",
+    "relatedDocs": ["docs/jpeg-to-character-pathway.md"]
+  }
+}

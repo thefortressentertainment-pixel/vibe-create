@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jarv-genie.local/schemas/game-project.schema.json",
+  "title": "Vibe Create Game Project",
+  "description": "A portable manifest for orchestrating game assets from an idea through generated media, Blender processing, and game integration.",
+  "type": "object",
+  "required": ["schemaVersion", "project", "stages", "assets", "scenes", "deliverables"],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "project": {
+      "type": "object",
+      "required": ["id", "name", "description", "status", "target", "styleGuide"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" },
+        "status": { "enum": ["idea", "in-progress", "blocked", "playable", "released"] },
+        "target": {
+          "type": "object",
+          "required": ["engine", "assetFormats"],
+          "properties": {
+            "engine": { "type": "string" },
+            "version": { "type": "string" },
+            "assetFormats": { "type": "array", "items": { "type": "string" } },
+            "constraints": { "type": "array", "items": { "type": "string" } }
+          },
+          "additionalProperties": false
+        },
+        "styleGuide": {
+          "type": "object",
+          "required": ["prompt"],
+          "properties": {
+            "prompt": { "type": "string" },
+            "references": { "type": "array", "items": { "$ref": "#/$defs/artifactRef" } },
+            "palette": { "type": "array", "items": { "type": "string" } },
+            "notes": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "assets": { "type": "array", "items": { "$ref": "#/$defs/asset" } },
+    "stages": { "type": "array", "items": { "$ref": "#/$defs/stage" } },
+    "scenes": { "type": "array", "items": { "$ref": "#/$defs/scene" } },
+    "deliverables": { "type": "array", "items": { "$ref": "#/$defs/deliverable" } },
+    "metadata": { "type": "object", "additionalProperties": true }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-zA-Z0-9][a-zA-Z0-9._-]*$" },
+    "artifactRef": {
+      "type": "object",
+      "required": ["id", "path", "mediaType"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "path": { "type": "string", "description": "Workspace-relative artifact path." },
+        "mediaType": { "type": "string" },
+        "format": { "type": "string" },
+        "sha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" },
+        "dimensions": { "type": "array", "items": { "type": "integer", "minimum": 1 }, "minItems": 2, "maxItems": 3 },
+        "metadata": { "type": "object", "additionalProperties": true }
+      },
+      "additionalProperties": false
+    },
+    "asset": {
+      "type": "object",
+      "required": ["id", "name", "kind", "status", "source", "requiredFormats", "stageIds"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string" },
+        "kind": { "enum": ["character", "environment", "prop", "texture", "animation", "vfx", "audio", "ui", "other"] },
+        "status": { "enum": ["planned", "generating", "review", "approved", "blocked"] },
+        "source": { "$ref": "#/$defs/artifactRef" },
+        "prompt": { "type": "string" },
+        "requiredFormats": { "type": "array", "items": { "type": "string" } },
+        "stageIds": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "outputs": { "type": "array", "items": { "$ref": "#/$defs/artifactRef" } },
+        "metadata": { "type": "object", "additionalProperties": true }
+      },
+      "additionalProperties": false
+    },
+    "stage": {
+      "type": "object",
+      "required": ["id", "kind", "status", "dependsOn", "inputs", "outputs", "qualityChecks"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "kind": { "enum": ["brief", "image-to-3d", "texture", "mesh-cleanup", "rig", "animation", "scene-build", "lighting", "vfx", "integration", "validation", "export"] },
+        "status": { "enum": ["planned", "ready", "running", "review", "passed", "failed", "blocked"] },
+        "dependsOn": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "inputs": { "type": "array", "items": { "$ref": "#/$defs/artifactRef" } },
+        "outputs": { "type": "array", "items": { "$ref": "#/$defs/artifactRef" } },
+        "qualityChecks": { "type": "array", "items": { "type": "string" } },
+        "worker": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "version": { "type": "string" },
+            "execution": { "enum": ["local", "remote", "human"] }
+          },
+          "additionalProperties": false
+        },
+        "config": { "type": "object", "additionalProperties": true },
+        "metadata": { "type": "object", "additionalProperties": true }
+      },
+      "additionalProperties": false
+    },
+    "scene": {
+      "type": "object",
+      "required": ["id", "name", "status", "assetIds", "stageIds"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string" },
+        "status": { "enum": ["planned", "building", "review", "ready", "blocked"] },
+        "assetIds": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "stageIds": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "prompt": { "type": "string" },
+        "outputs": { "type": "array", "items": { "$ref": "#/$defs/artifactRef" } }
+      },
+      "additionalProperties": false
+    },
+    "deliverable": {
+      "type": "object",
+      "required": ["id", "name", "status", "stageIds"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "type": "string" },
+        "status": { "enum": ["planned", "building", "review", "complete", "blocked"] },
+        "stageIds": { "type": "array", "items": { "$ref": "#/$defs/id" } },
+        "outputs": { "type": "array", "items": { "$ref": "#/$defs/artifactRef" } },
+        "acceptanceCriteria": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    }
+  }
+}
