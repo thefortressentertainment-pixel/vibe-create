@@ -9,7 +9,7 @@ Vibe Create has two build modes:
 |------|--------|------------------|--------------|
 | **Quest RPG · Browser** | Self-contained `index.html` (top-down RPG) | ✅ Yes | No |
 | **2D sandbox · Godot** | Godot 4.3+ project + HTML5 canvas port | ✅ Yes (via web export) | No (native run needs Godot) |
-| **Diablo 2 · Browser** | Isometric HTML5 action RPG `index.html` | ✅ Yes | No |
+| **Dark Fantasy · Browser** | Isometric HTML5 action RPG `index.html` | ✅ Yes | No |
 
 Every completed project can be exported as a **web-installable PWA zip**:
 `index.html` + `manifest.json` + `service-worker.js` + icons + `README.md`.
@@ -128,8 +128,8 @@ and Godot.
      a playable HTML5 canvas via "Export for web".
    - `Quest RPG · Browser` — offline top-down RPG vertical slice with quest, NPC,
      collectibles, enemy, and altar. Already a self-contained `index.html`.
-   - `Diablo 2 · Browser` — isometric action RPG with random dungeons, loot,
-     skills, classes, and combat. Runs in any browser via "Export for web".
+   - `Dark Fantasy · Browser` — dark fantasy action RPG with random dungeons,
+     loot, skills, classes, and combat. Runs in any browser via "Export for web".
 
 2. **Enter your world idea** in the creative brief (or click an idea chip).
 
@@ -197,10 +197,10 @@ The zip contains:
 
 ---
 
-## Diablo 2 · Browser mode
+## Dark Fantasy · Browser mode
 
-The Diablo 2 build mode generates a self-contained, offline-playable isometric
-action RPG that captures the core feel of Diablo 2:
+The Dark Fantasy build mode generates a self-contained, offline-playable isometric
+action RPG that captures the core feel of a dark fantasy dungeon crawler:
 
 - **7 character classes**: Amazon, Sorceress, Necromancer, Paladin, Barbarian,
   Druid, Assassin — each with unique base stats and skill trees
@@ -237,15 +237,15 @@ vibe-create/
 ├── scripts/
 │   ├── workbench_server.py     # Local HTTP workbench + API + export endpoints
 │   ├── generate_sandbox.py     # Godot 4 side-scrolling sandbox + HTML5 port
-│   ├── generate_diablo2.py     # Diablo 2-style isometric action RPG generator
+│   ├── generate_dark_fantasy.py     # Dark fantasy isometric action RPG generator
 │   ├── idea_to_game.py         # Quest RPG browser prototype
 │   ├── local_game_planner.py   # Ollama game-content planner
 │   ├── local_pixel_art_review.py # Local vision review of pixel art
 │   ├── local_visual_review.py  # Local vision review of Blender renders
 │   ├── project_adapter.py      # Unreal project inspection & staging
 │   ├── pwa_export.py           # PWA package builder (manifest, SW, icons)
-│   ├── diablo2_data.py         # Reverse-engineered D2 data tables (items, skills, monsters, areas)
-│   └── diablo2_mapgen.py       # Random dungeon/town map generator
+│   ├── dark_fantasy_data.py         # Reverse-engineered dark fantasy data tables (items, skills, monsters, areas)
+│   └── dark_fantasy_mapgen.py       # Random dungeon/town map generator
 │   └── web_sandbox_export.py   # HTML5 canvas sandbox generator
 └── web/
     ├── index.html    # Workbench UI

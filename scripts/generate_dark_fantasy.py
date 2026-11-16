@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate a self-contained Diablo 2-style action RPG project.
+"""Generate a self-contained dark fantasy action RPG project.
 
 Outputs, inside <out>/:
   index.html          self-contained isometric HTML5 game (canvas, all data embedded)
@@ -30,13 +30,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from local_game_planner import generate_local_content  # noqa: E402
-from diablo2_data import (  # noqa: E402
+from dark_fantasy_data import (  # noqa: E402
     CLASS_DATA, ITEM_BASES, UNIQUE_ITEMS, ITEM_SETS, MONSTER_FAMILIES, ACT_BOSSES,
     AREAS, ACTS, QUESTS, NPCDATA, QUALITY_NAMES, QUALITY_COLORS,
     DAMAGE_TYPES, RESISTANCE_ORDER, compute_life, compute_mana, compute_stamina,
     compute_defense, compute_chance_to_block,
 )
-from diablo2_mapgen import MapGen, TILE, FLOOR, WALL  # noqa: E402
+from dark_fantasy_mapgen import MapGen, TILE, FLOOR, WALL  # noqa: E402
 
 
 def _chunk(kind: bytes, content: bytes) -> bytes:
@@ -99,7 +99,7 @@ def make_dark_preview(path: Path, width: int = 512, height: int = 288) -> None:
 
 
 # ---------------------------------------------------------------------------
-# HTML game shell (self-contained isometric Diablo-like)
+# HTML game shell (self-contained isometric dark fantasy)
 # ---------------------------------------------------------------------------
 
 GAME_HTML = r"""<!doctype html>
@@ -156,7 +156,7 @@ canvas#game { width: 100%; height: 100%; background: #10151f;
 <body>
 <div id="wrap">
   <canvas id="game" width="960" height="600" tabindex="0"
-    aria-label="Diablo-style isometric action RPG"></canvas>
+    aria-label="Dark fantasy isometric action RPG"></canvas>
   <div id="sidebar">
     <div class="section"><h3 id="char-name">__CHAR_NAME__</h3>
       <div class="stat-row"><span>Level</span><span id="lvl-val" class="val">1</span></div>
@@ -193,7 +193,7 @@ canvas#game { width: 100%; height: 100%; background: #10151f;
   <div id="saved">saved</div>
   <div id="overlay">
     <h1 id="overlay-title">__TITLE__</h1>
-    <p id="overlay-text">A reverse-engineered Diablo-style action RPG. Play offline, anywhere.</p>
+    <p id="overlay-text">A reverse-engineered dark fantasy action RPG. Play offline, anywhere.</p>
     <button id="start-btn">Enter Sanctuary</button>
     <div class="keys">WASD / arrows move · Left-click attack · Right-click skill · 1-6 equip skill</div>
   </div>
@@ -981,7 +981,7 @@ def generate(idea: str, title: str, out: Path, seed: int,
         "seed": seed,
         "theme": "dark-fantasy",
         "createdAt": datetime.now(timezone.utc).isoformat(),
-        "runtime": "browser-diablo2",
+        "runtime": "browser-dark-fantasy",
     }
 
     # Data bundles for the HTML game
@@ -1009,7 +1009,7 @@ def generate(idea: str, title: str, out: Path, seed: int,
     content.update({
         "theme": "dark-fantasy",
         "setting": planner_data.get("setting", "A dark fantasy world of demons and heroes."),
-        "runtime": "browser-diablo2",
+        "runtime": "browser-dark-fantasy",
         "playerClass": class_id,
         "startingArea": starting_area,
         "seed": seed,
@@ -1024,30 +1024,30 @@ def generate(idea: str, title: str, out: Path, seed: int,
             "name": title,
             "description": idea,
             "status": "complete",
-            "target": {"engine": "browser-diablo2", "assetFormats": ["html", "json"],
+            "target": {"engine": "browser-dark-fantasy", "assetFormats": ["html", "json"],
                        "constraints": ["Local execution only", "Offline playable", "Isometric action RPG"]},
             "styleGuide": {"prompt": idea, "references": [],
                            "palette": ["#0b100e", "#24343A", "#f1bd75", "#c73c47", "#9ed3c6"],
-                           "notes": "Diablo-style dark fantasy isometric action RPG."},
+                           "notes": "Dark fantasy isometric action RPG."},
         },
         "assets": [],
         "stages": [
-            {"id": "diablo2-design", "kind": "brief", "status": "complete",
+            {"id": "dark-fantasy-design", "kind": "brief", "status": "complete",
              "worker": {"name": planner_source, "execution": "local"},
              "outputs": [{"id": "game-content", "path": "game-content.json", "mediaType": "application/json", "format": "json"}]},
-            {"id": "diablo2-build", "kind": "engine-project", "status": "complete",
+            {"id": "dark-fantasy-build", "kind": "engine-project", "status": "complete",
              "outputs": [{"id": "playable", "path": "index.html", "mediaType": "text/html", "format": "html"}],
-             "worker": {"name": "scripts/generate_diablo2.py", "execution": "local"}},
+             "worker": {"name": "scripts/generate_dark_fantasy.py", "execution": "local"}},
         ],
-        "deliverables": [{"id": "diablo2-clone", "name": "Diablo-style action RPG slice", "status": "generated",
+        "deliverables": [{"id": "dark-fantasy-clone", "name": "Dark fantasy action RPG slice", "status": "generated",
                           "outputs": [{"id": "playable", "path": "index.html", "mediaType": "text/html", "format": "html"}],
                           "acceptanceCriteria": ["Game opens and runs offline in any browser.",
                                                  "Isometric movement, combat, loot, and skills.",
                                                  "Random dungeon areas with stairs and waypoints."]}],
         "metadata": {"generatedAt": datetime.now(timezone.utc).isoformat(),
-                     "generator": "scripts/generate_diablo2.py",
+                     "generator": "scripts/generate_dark_fantasy.py",
                      "localOnly": True, "contentPlanner": planner_source,
-                     "plannerNote": planner_note, "runtime": "browser-diablo2",
+                     "plannerNote": planner_note, "runtime": "browser-dark-fantasy",
                      "seed": seed, "heroName": hero_name, "playerClass": class_id},
     }
     (out / "project.json").write_text(json.dumps(manifest, indent=2) + "\n")
@@ -1055,7 +1055,7 @@ def generate(idea: str, title: str, out: Path, seed: int,
     (out / "README.md").write_text(f"""\
 # {title}
 
-A Diablo 2-style action RPG generated from the Vibe Create workbench.
+A dark fantasy action RPG generated from the Vibe Create workbench.
 
 Open `index.html` in any browser to play offline. No engine installation required.
 
@@ -1075,14 +1075,14 @@ Open `index.html` in any browser to play offline. No engine installation require
 Generated locally by Vibe Create — {project_id}
 """)
 
-    print(f"Created {out / 'index.html'} (offline playable Diablo-style RPG slice)")
+    print(f"Created {out / 'index.html'} (offline playable dark fantasy RPG slice)")
     print(f"Created {out / 'game-content.json'} using {planner_source}")
     print(f"Created {out / 'project.json'} (asset pipeline manifest)")
 
 
 def main() -> None:
     import argparse
-    parser = argparse.ArgumentParser(description="Generate a Diablo 2-style action RPG project")
+    parser = argparse.ArgumentParser(description="Generate a dark fantasy action RPG project")
     parser.add_argument("idea")
     parser.add_argument("--title", default="")
     parser.add_argument("--out", type=Path, required=True)
@@ -1091,7 +1091,7 @@ def main() -> None:
     parser.add_argument("--vision-model", default=os.environ.get("VIBE_VISION_MODEL", "qwen2.5vl:3b"))
     parser.add_argument("--skip-vision-review", action="store_true")
     args = parser.parse_args()
-    title = args.title.strip() or " ".join(args.idea.split()[:5]).strip(".,!?;:") or "Diablo Clone"
+    title = args.title.strip() or " ".join(args.idea.split()[:5]).strip(".,!?;:") or "Dark Fantasy Clone"
     generate(args.idea, title, args.out, args.seed, args.model,
              args.vision_model, not args.skip_vision_review)
 

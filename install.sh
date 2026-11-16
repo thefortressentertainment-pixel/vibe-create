@@ -166,7 +166,7 @@ Vibe Create is installed. Next steps:
 Build modes:
   - 2D sandbox · Godot   — seeded side-scrolling sandbox (needs Godot 4.3+ to run natively)
   - Quest RPG · Browser  — offline top-down RPG vertical slice
-  - Diablo 2 · Browser   — isometric action RPG with random dungeons, loot, skills
+  - Dark Fantasy · Browser   — dark fantasy action RPG with random dungeons, loot, skills
 
 --------------------------------------------------------------------------------
 Models pulled:

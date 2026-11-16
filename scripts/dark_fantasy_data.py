@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Reverse-engineered Diablo 2 data tables.
+"""Reverse-engineered dark fantasy data tables.
 
-These tables are local approximations of Diablo 2's game data (items.txt,
-skills.txt, monsters.txt, levels.txt, Affix.txt, etc.) used to drive the
-procedural Diablo-style game generator. All values are original, local-only
-approximations — no Blizzard game files are read or distributed.
+These tables are local approximations of dark fantasy game data (items,
+skills, monsters, areas, affixes, etc.) used to drive the procedural
+dark fantasy game generator. All values are original, local-only
+approximations — no external game files are read or distributed.
 
 Pure Python standard library.
 """

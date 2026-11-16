@@ -30,7 +30,7 @@ WEB_ROOT = ROOT / "web"
 PROJECTS_ROOT = ROOT / "projects"
 GENERATOR = ROOT / "scripts" / "idea_to_game.py"
 SANDBOX_GENERATOR = ROOT / "scripts" / "generate_sandbox.py"
-DIABLO2_GENERATOR = ROOT / "scripts" / "generate_diablo2.py"
+DARK_FANTASY_GENERATOR = ROOT / "scripts" / "generate_dark_fantasy.py"
 DEFAULT_BLENDER = Path("/Applications/Blender.app/Contents/MacOS/Blender")
 OLLAMA_TAGS = "http://127.0.0.1:11434/api/tags"
 JOBS: dict[str, dict] = {}
@@ -99,8 +99,8 @@ def project_summary(folder: Path) -> dict | None:
     target_engine = project.get("target", {}).get("engine", "")
     if godot_project.is_file():
         runtime = "godot"
-    elif target_engine == "browser-diablo2":
-        runtime = "browser-diablo2"
+    elif target_engine == "browser-dark-fantasy":
+        runtime = "browser-dark-fantasy"
     else:
         runtime = "browser"
     files = {
@@ -399,8 +399,8 @@ class WorkbenchHandler(BaseHTTPRequestHandler):
             self._json(400, {"error": "The idea or title is too long."})
             return
         mode = str(data.get("mode", "sandbox")).strip().lower()
-        if mode not in {"sandbox", "quest", "diablo2"}:
-            self._json(400, {"error": "Choose the sandbox world, quest RPG, or Diablo-style action RPG build mode."})
+        if mode not in {"sandbox", "quest", "dark-fantasy"}:
+            self._json(400, {"error": "Choose the sandbox world, quest RPG, or dark fantasy action RPG build mode."})
             return
         if not title:
             title = " ".join(idea.split()[:5]).strip(".,!?;:") or "Idea Game"
@@ -481,8 +481,8 @@ class WorkbenchHandler(BaseHTTPRequestHandler):
                        "--review-strictness", review_strictness]
             if not with_review:
                 command.append("--skip-vision-review")
-        elif mode == "diablo2":
-            command = [sys.executable, "-u", str(DIABLO2_GENERATOR), idea, "--title", title,
+        elif mode == "dark-fantasy":
+            command = [sys.executable, "-u", str(DARK_FANTASY_GENERATOR), idea, "--title", title,
                        "--out", str(out_dir), "--seed", str(seed),
                        "--model", str(data.get("plannerModel") or "qwen3.5:2b"),
                        "--vision-model", str(data.get("visionModel") or "qwen2.5vl:3b")]

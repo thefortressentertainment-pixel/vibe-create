@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Diablo-style random map generator.
+"""Dark fantasy random map generator.
 
 Produces tile-based dungeon and town maps with:
   - Rooms of varying sizes connected by corridors
