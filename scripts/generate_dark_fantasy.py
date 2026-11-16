@@ -194,7 +194,7 @@ canvas#game { width: 100%; height: 100%; background: #10151f;
   <div id="overlay">
     <h1 id="overlay-title">__TITLE__</h1>
     <p id="overlay-text">A reverse-engineered dark fantasy action RPG. Play offline, anywhere.</p>
-    <button id="start-btn">Enter Sanctuary</button>
+    <button id="startBtn">Enter Sanctuary</button>
     <div class="keys">WASD / arrows move · Left-click attack · Right-click skill · 1-6 equip skill</div>
   </div>
 </div>
