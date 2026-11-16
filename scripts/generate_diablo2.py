@@ -393,9 +393,8 @@ function loadArea(areaId) {
 
   let mapData = MAPS[areaId];
   if (!mapData) {
-    // Generate a fresh random map
-    const gen = new (requireMapGen)();
-    // Placeholder: generated below by buildMapGenerator()
+    mapData = generateMapForArea(areaId);
+    MAPS[areaId] = mapData;
   }
   currentMap = mapData;
   camera.x = 0; camera.y = 0;
@@ -406,19 +405,16 @@ function loadArea(areaId) {
   }
 }
 
-requireMapGen = class {
-  constructor() {}
-};
-
 // Build map generator inline (avoid module complexity)
 function generateMapForArea(areaId) {
   const area = AREAS[areaId];
   const w = 40, h = 30;
+  const WALL = 1, FLOOR = 0;
   const grid = [];
-  for (let y = 0; y < h; y++) { grid.push([]); for (let x = 0; x < w; x++) { grid[y].push(0); } }
-  // Simple room carving
+  for (let y = 0; y < h; y++) { grid.push([]); for (let x = 0; x < w; x++) { grid[y].push(WALL); } }
+  // Simple room carving: start with all walls, carve rooms as floor.
   const rooms = [];
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 60; i++) {
     const rw = Math.floor(rng.range(4, 10));
     const rh = Math.floor(rng.range(4, 10));
     const rx = Math.floor(rng.range(1, w - rw - 2));
@@ -428,20 +424,20 @@ function generateMapForArea(areaId) {
       if (!(rx + rw < r.x - 2 || rx > r.x + r.w + 2 || ry + rh < r.y - 2 || ry > r.y + r.h + 2)) { ok = false; break; }
     }
     if (!ok) continue;
-    for (let y = ry; y < ry + rh; y++) for (let x = rx; x < rx + rw; x++) grid[y][x] = 0;
+    for (let y = ry; y < ry + rh; y++) for (let x = rx; x < rx + rw; x++) grid[y][x] = FLOOR;
     rooms.push({ x: rx, y: ry, w: rw, h: rh });
   }
-  // Connect rooms
+  // Connect rooms with floor corridors.
   for (let i = 1; i < rooms.length; i++) {
     const a = rooms[i - 1]; const b = rooms[i];
     let cx = (a.x + a.w / 2) | 0, cy = (a.y + a.h / 2) | 0;
     const tx = (b.x + b.w / 2) | 0, ty = (b.y + b.h / 2) | 0;
     if (rng.next() < 0.5) {
-      for (let x = Math.min(cx, tx); x <= Math.max(cx, tx); x++) grid[cy][x] = 0;
-      for (let y = Math.min(cy, ty); y <= Math.max(cy, ty); y++) grid[y][tx] = 0;
+      for (let x = Math.min(cx, tx); x <= Math.max(cx, tx); x++) grid[cy][x] = FLOOR;
+      for (let y = Math.min(cy, ty); y <= Math.max(cy, ty); y++) grid[y][tx] = FLOOR;
     } else {
-      for (let y = Math.min(cy, ty); y <= Math.max(cy, ty); y++) grid[y][cx] = 0;
-      for (let x = Math.min(cx, tx); x <= Math.max(cx, tx); x++) grid[ty][x] = 0;
+      for (let y = Math.min(cy, ty); y <= Math.max(cy, ty); y++) grid[y][cx] = FLOOR;
+      for (let x = Math.min(cx, tx); x <= Math.max(cx, tx); x++) grid[ty][x] = FLOOR;
     }
   }
   const entities = [];
@@ -904,23 +900,22 @@ window.addEventListener("load", () => {
 </body>
 </html>"""
 
-# Placeholders replaced at export time
+# Placeholders replaced at export time. The __NAME__ keys match the GAME_HTML
+# template exactly. Simple string values (__TITLE__, __CHAR_NAME__, __AREA__)
+# are substituted with real values in render_html; JSON blobs are dumped inline.
 PLACEHOLDERS = {
-    "__TITLE__": "{title}",
-    "__CHAR_NAME__": "{hero_name}",
-    "__AREA__": "{starting_area}",
-    "__SPEC_JSON__": "{spec_json}",
-    "__MAPS_JSON__": "{maps_json}",
-    "__CLASSES_JSON__": "{classes_json}",
-    "__ITEMS_JSON__": "{items_json}",
-    "__MONSTERS_JSON__": "{monsters_json}",
-    "__BOSSES_JSON__": "{bosses_json}",
-    "__AREAS_JSON__": "{areas_json}",
-    "__ACTS_JSON__": "{acts_json}",
-    "__QUESTS_JSON__": "{quests_json}",
-    "__NPCDATA_JSON__": "{npc_json}",
-    "__UNIQUE_ITEMS_JSON__": "{unique_json}",
-    "__ITEM_SETS_JSON__": "{sets_json}",
+    "__SPEC_JSON__": None,        # filled with json.dumps(spec)
+    "__MAPS_JSON__": None,        # filled with json.dumps({})
+    "__CLASSES_JSON__": None,     # filled with json.dumps(classes)
+    "__ITEMS_JSON__": None,       # filled with json.dumps(items)
+    "__MONSTERS_JSON__": None,    # filled with json.dumps(monsters)
+    "__BOSSES_JSON__": None,      # filled with json.dumps(bosses)
+    "__AREAS_JSON__": None,       # filled with json.dumps(areas)
+    "__ACTS_JSON__": None,        # filled with json.dumps(acts)
+    "__QUESTS_JSON__": None,      # filled with json.dumps(quests)
+    "__NPCDATA_JSON__": None,     # filled with json.dumps(npcs)
+    "__UNIQUE_ITEMS_JSON__": None,# filled with json.dumps(uniques)
+    "__ITEM_SETS_JSON__": None,   # filled with json.dumps(sets)
     "__TILE__": str(TILE),
 }
 
@@ -929,12 +924,16 @@ def _html_escape(s: str) -> str:
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
-def render_html(spec: dict, classes: dict, items: dict, monsters: dict,
+def render_html(spec: dict, title: str, hero_name: str, starting_area: str,
+                classes: dict, items: dict, monsters: dict,
                 bosses: dict, areas: dict, acts: dict, quests: dict,
                 npcs: dict, uniques: dict, sets: dict) -> str:
     html = GAME_HTML
-    for key, value in PLACEHOLDERS.items():
-        html = html.replace(key, value)
+    # Simple string substitutions with real values.
+    html = html.replace("__TITLE__", title)
+    html = html.replace("__CHAR_NAME__", hero_name)
+    html = html.replace("__AREA__", starting_area)
+    # JSON blob substitutions.
     html = html.replace("__SPEC_JSON__", json.dumps(spec, ensure_ascii=False))
     html = html.replace("__MAPS_JSON__", json.dumps({}, ensure_ascii=False))
     html = html.replace("__CLASSES_JSON__", json.dumps(classes, ensure_ascii=False))
@@ -947,6 +946,7 @@ def render_html(spec: dict, classes: dict, items: dict, monsters: dict,
     html = html.replace("__NPCDATA_JSON__", json.dumps(npcs, ensure_ascii=False))
     html = html.replace("__UNIQUE_ITEMS_JSON__", json.dumps(uniques, ensure_ascii=False))
     html = html.replace("__ITEM_SETS_JSON__", json.dumps(sets, ensure_ascii=False))
+    html = html.replace("__TILE__", str(TILE))
     return html
 
 
@@ -996,7 +996,8 @@ def generate(idea: str, title: str, out: Path, seed: int,
     uniques = UNIQUE_ITEMS
     sets = ITEM_SETS
 
-    html = render_html(spec, classes, items, monsters, bosses, areas, acts,
+    html = render_html(spec, title, hero_name, starting_area,
+                       classes, items, monsters, bosses, areas, acts,
                        quests, npcs, uniques, sets)
     (out / "index.html").write_text(html, encoding="utf-8")
 
