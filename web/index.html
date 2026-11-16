@@ -82,13 +82,13 @@
               </div>
               <div class="field-wrap">
                 <label class="field-label" for="game-mode">BUILD TYPE</label>
-                <select id="game-mode"><option value="sandbox" selected>2D sandbox · Godot</option><option value="quest">Quest RPG · Browser</option></select>
+                <select id="game-mode"><option value="sandbox" selected>2D sandbox · Godot</option><option value="quest">Quest RPG · Browser</option><option value="diablo2">Diablo 2 · Browser</option></select>
               </div>
-              <div class="field-wrap sandbox-options">
+              <div class="field-wrap sandbox-only-options">
                 <label class="field-label" for="world-seed">WORLD SEED <span>Same seed = same terrain</span></label>
                 <input id="world-seed" type="number" min="0" max="2147483647" step="1" value="4172026">
               </div>
-              <div class="field-wrap sandbox-options">
+              <div class="field-wrap sandbox-only-options">
                 <label class="field-label" for="world-chunks">CONNECTED CHUNKS</label>
                 <select id="world-chunks"><option>4</option><option>6</option><option selected>8</option><option>10</option><option>12</option><option>16</option></select>
               </div>
@@ -167,7 +167,7 @@
                 <label class="field-label" for="review-strictness">REVIEW STRICTNESS <span>Local vision review bar</span></label>
                 <select id="review-strictness"><option value="lenient">Lenient</option><option value="standard" selected>Standard</option><option value="strict">Strict</option></select>
               </div>
-              <p class="runtime-note sandbox-options" id="godot-note">Godot 4.3+ launches the game. The workbench can still review the generated world and art sheets without it.</p>
+              <p class="runtime-note sandbox-only-options" id="godot-note">Godot 4.3+ launches the game. The workbench can still review the generated world and art sheets without it.</p>
               <div class="field-wrap">
                 <label class="field-label" for="planner-model">LOCAL PLANNER</label>
                 <select id="planner-model"><option value="qwen3.5:2b">qwen3.5:2b</option></select>

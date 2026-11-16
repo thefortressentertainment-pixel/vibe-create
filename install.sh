@@ -163,6 +163,11 @@ Vibe Create is installed. Next steps:
      a playable PWA (index.html + manifest.json + service-worker.js). Unzip on
      any device and open index.html — no engine or install required.
 
+Build modes:
+  - 2D sandbox · Godot   — seeded side-scrolling sandbox (needs Godot 4.3+ to run natively)
+  - Quest RPG · Browser  — offline top-down RPG vertical slice
+  - Diablo 2 · Browser   — isometric action RPG with random dungeons, loot, skills
+
 --------------------------------------------------------------------------------
 Models pulled:
   - qwen3.5:2b   — local game-content planner (default)

@@ -82,33 +82,48 @@ async function loadStatus() {
 }
 
 function syncGenerationMode() {
-  const sandbox = byId('game-mode').value === 'sandbox';
-  $$('.sandbox-options').forEach(node => node.classList.toggle('hidden', !sandbox));
-  $$('.quest-options').forEach(node => node.classList.toggle('hidden', sandbox));
-  const isReviewAvailable = sandbox || byId('with-blender').checked && !byId('with-blender').disabled;
+  const mode = byId('game-mode').value;
+  const sandbox = mode === 'sandbox';
+  const diablo2 = mode === 'diablo2';
+  $$('.sandbox-only-options').forEach(node => node.classList.toggle('hidden', !sandbox));
+  $$('.sandbox-options').forEach(node => node.classList.toggle('hidden', !(sandbox || diablo2)));
+  $$('.quest-options').forEach(node => node.classList.toggle('hidden', sandbox || diablo2));
+  const isReviewAvailable = (sandbox || diablo2) || byId('with-blender').checked && !byId('with-blender').disabled;
   byId('with-review').disabled = !isReviewAvailable;
   byId('with-review').closest('.check-row').classList.toggle('disabled', !isReviewAvailable);
-  byId('review-label').textContent = sandbox ? 'Review pixel art with local vision' : 'Review renders with local vision';
+  byId('review-label').textContent = (sandbox || diablo2) ? 'Review pixel art / renders with local vision' : 'Review renders with local vision';
   byId('review-description').textContent = sandbox
     ? 'Advisory feedback on tile readability and sprite frames'
+    : diablo2
+    ? 'Advisory feedback on item and monster renders'
     : 'Advisory visual report; it never changes the scene';
   byId('idea-hint').textContent = sandbox
     ? 'LOCAL MODEL SHAPES THE WORLD BRIEF AND ENEMY'
+    : diablo2
+    ? 'LOCAL MODEL SHAPES THE HERO, CLASS, AND AREAS'
     : 'LOCAL MODEL WILL EXPAND THIS INTO A PLAYABLE QUEST';
   const labels = sandbox
     ? [['Shape the world brief', 'Setting and encounter'], ['Generate pixel art', 'Tiles and sprite frames'], ['Build connected chunks', 'Godot terrain and mechanics'], ['Review the world', 'Image sheet and local vision']]
+    : diablo2
+    ? [['Design the hero', 'Class, stats, and starting area'], ['Generate the dark world', 'Random dungeons, towns, and loot'], ['Build the isometric RPG', 'Canvas combat, skills, and AI'], ['Review the loot', 'Item and monster visual feedback']]
     : [['Plan the encounter', 'Quest, cast and setting'], ['Build the playable slice', 'Offline browser RPG'], ['Shape the scene', 'Blender + FBX export'], ['Inspect the renders', 'Local visual feedback']];
-  const phases = sandbox ? ['planning', 'assets', 'engine', 'review'] : ['planning', 'browser', 'blender', 'review'];
+  const phases = sandbox ? ['planning', 'assets', 'engine', 'review'] : diablo2 ? ['planning', 'assets', 'engine', 'review'] : ['planning', 'browser', 'blender', 'review'];
   $$('[data-mini-phase]').forEach((node, index) => {
     node.dataset.miniPhase = phases[index];
     node.querySelector('b').textContent = labels[index][0];
     node.querySelector('small').textContent = labels[index][1];
   });
-  const stepLabels = sandbox ? ['Plan', 'Pixel art', 'Godot world', 'Visual review'] : ['Plan', 'Playable game', 'Blender scene', 'Visual review'];
+  const stepLabels = sandbox ? ['Plan', 'Pixel art', 'Godot world', 'Visual review'] : diablo2 ? ['Plan', 'Dark world', 'Isometric RPG', 'Visual review'] : ['Plan', 'Playable game', 'Blender scene', 'Visual review'];
   $$('#job-steps [data-phase]').forEach((node, index) => {
     node.dataset.phase = phases[index];
     node.querySelector('b').textContent = stepLabels[index];
   });
+  const godotNote = byId('godot-note');
+  godotNote.textContent = sandbox
+    ? 'Godot 4.3+ launches the game. The workbench can still review the generated world and art sheets without it.'
+    : diablo2
+    ? 'The Diablo-style RPG runs in any browser — no engine install required.'
+    : 'Godot 4.3+ launches the game. The workbench can still review the generated world and art sheets without it.';
 }
 
 async function loadProjects(preferredId = '') {
@@ -270,6 +285,11 @@ function selectProject(project, announce = true) {
     ['PIXEL ART REVIEW', 'pixel-art-review.json', project.files.pixelReview],
     ['GAME CONTENT', 'game-content.json', true],
     ['PROJECT MANIFEST', 'project.json', true],
+  ] : project.runtime === 'browser-diablo2' ? [
+    ['PLAYABLE GAME', 'index.html', true],
+    ['WORLD PREVIEW', 'world-preview.png', project.files.worldPreview],
+    ['GAME CONTENT', 'game-content.json', true],
+    ['PROJECT MANIFEST', 'project.json', true],
   ] : [
     ['FBX', 'blender-concept/concept.fbx', project.files.fbx],
     ['BLEND', 'blender-concept/concept.blend', project.files.blend],
@@ -294,17 +314,19 @@ function selectProject(project, announce = true) {
 function renderJobPhase(job) {
   const phases = job.mode === 'sandbox'
     ? ['planning', 'assets', 'engine', 'review']
+    : job.mode === 'diablo2'
+    ? ['planning', 'assets', 'engine', 'review']
     : ['planning', 'browser', 'blender', 'review'];
   const phaseIndex = Math.max(0, phases.indexOf(job.phase));
   const complete = ['complete', 'complete_with_warnings'].includes(job.status);
   $$('#job-steps [data-phase]').forEach((node, index) => {
-    const skipped = job.mode !== 'sandbox' && !job.withBlender && index >= 2;
+    const skipped = (job.mode !== 'sandbox' && job.mode !== 'diablo2' && !job.withBlender && index >= 2);
     node.classList.toggle('skipped', skipped);
-    node.classList.toggle('done', !skipped && (complete ? (job.mode === 'sandbox' || job.withBlender || index < 2) : index < phaseIndex));
+    node.classList.toggle('done', !skipped && (complete ? (job.mode === 'sandbox' || job.mode === 'diablo2' || job.withBlender || index < 2) : index < phaseIndex));
     node.classList.toggle('active', !skipped && !complete && index === phaseIndex);
   });
   $$('[data-mini-phase]').forEach((node, index) => {
-    const skipped = job.mode !== 'sandbox' && !job.withBlender && index >= 2;
+    const skipped = (job.mode !== 'sandbox' && job.mode !== 'diablo2' && !job.withBlender && index >= 2);
     node.classList.toggle('skipped', skipped);
     node.classList.toggle('done', !skipped && (complete || index < phaseIndex));
     node.classList.toggle('active', !skipped && !complete && index === phaseIndex);
@@ -312,7 +334,7 @@ function renderJobPhase(job) {
   const titles = {
     planning: 'Shaping the game brief…',
     assets: 'Generating the pixel-art sheets…',
-    engine: 'Building the seeded Godot world…',
+    engine: job.mode === 'diablo2' ? 'Building the dark world…' : 'Building the seeded Godot world…',
     browser: 'Building the playable world…',
     blender: 'Building the Blender scene…',
     review: job.mode === 'sandbox' ? 'Reviewing the pixel-art sheets locally…' : 'Reviewing the renders locally…',

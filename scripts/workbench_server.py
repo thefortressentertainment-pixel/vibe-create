@@ -30,6 +30,7 @@ WEB_ROOT = ROOT / "web"
 PROJECTS_ROOT = ROOT / "projects"
 GENERATOR = ROOT / "scripts" / "idea_to_game.py"
 SANDBOX_GENERATOR = ROOT / "scripts" / "generate_sandbox.py"
+DIABLO2_GENERATOR = ROOT / "scripts" / "generate_diablo2.py"
 DEFAULT_BLENDER = Path("/Applications/Blender.app/Contents/MacOS/Blender")
 OLLAMA_TAGS = "http://127.0.0.1:11434/api/tags"
 JOBS: dict[str, dict] = {}
@@ -95,7 +96,13 @@ def project_summary(folder: Path) -> dict | None:
         return None
     project = manifest.get("project", {})
     review = manifest.get("metadata", {}).get("visualReview", {})
-    runtime = "godot" if godot_project.is_file() else "browser"
+    target_engine = project.get("target", {}).get("engine", "")
+    if godot_project.is_file():
+        runtime = "godot"
+    elif target_engine == "browser-diablo2":
+        runtime = "browser-diablo2"
+    else:
+        runtime = "browser"
     files = {
         name: path.is_file()
         for name, path in {
@@ -392,8 +399,8 @@ class WorkbenchHandler(BaseHTTPRequestHandler):
             self._json(400, {"error": "The idea or title is too long."})
             return
         mode = str(data.get("mode", "sandbox")).strip().lower()
-        if mode not in {"sandbox", "quest"}:
-            self._json(400, {"error": "Choose the sandbox world or quest RPG build mode."})
+        if mode not in {"sandbox", "quest", "diablo2"}:
+            self._json(400, {"error": "Choose the sandbox world, quest RPG, or Diablo-style action RPG build mode."})
             return
         if not title:
             title = " ".join(idea.split()[:5]).strip(".,!?;:") or "Idea Game"
@@ -472,6 +479,13 @@ class WorkbenchHandler(BaseHTTPRequestHandler):
                        "--save-interval", str(save_interval),
                        "--chaos", str(chaos),
                        "--review-strictness", review_strictness]
+            if not with_review:
+                command.append("--skip-vision-review")
+        elif mode == "diablo2":
+            command = [sys.executable, "-u", str(DIABLO2_GENERATOR), idea, "--title", title,
+                       "--out", str(out_dir), "--seed", str(seed),
+                       "--model", str(data.get("plannerModel") or "qwen3.5:2b"),
+                       "--vision-model", str(data.get("visionModel") or "qwen2.5vl:3b")]
             if not with_review:
                 command.append("--skip-vision-review")
         else:

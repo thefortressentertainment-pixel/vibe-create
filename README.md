@@ -9,6 +9,7 @@ Vibe Create has two build modes:
 |------|--------|------------------|--------------|
 | **Quest RPG · Browser** | Self-contained `index.html` (top-down RPG) | ✅ Yes | No |
 | **2D sandbox · Godot** | Godot 4.3+ project + HTML5 canvas port | ✅ Yes (via web export) | No (native run needs Godot) |
+| **Diablo 2 · Browser** | Isometric HTML5 action RPG `index.html` | ✅ Yes | No |
 
 Every completed project can be exported as a **web-installable PWA zip**:
 `index.html` + `manifest.json` + `service-worker.js` + icons + `README.md`.
@@ -127,6 +128,8 @@ and Godot.
      a playable HTML5 canvas via "Export for web".
    - `Quest RPG · Browser` — offline top-down RPG vertical slice with quest, NPC,
      collectibles, enemy, and altar. Already a self-contained `index.html`.
+   - `Diablo 2 · Browser` — isometric action RPG with random dungeons, loot,
+     skills, classes, and combat. Runs in any browser via "Export for web".
 
 2. **Enter your world idea** in the creative brief (or click an idea chip).
 
@@ -190,6 +193,33 @@ The zip contains:
 - `sandbox-game/Art/*.png` — tile atlas and sprite sheets (sandbox mode)
 - `README.md` — per-device install instructions
 
+| **Review Strictness** | Lenient / Standard / Strict | Local vision review bar |
+
+---
+
+## Diablo 2 · Browser mode
+
+The Diablo 2 build mode generates a self-contained, offline-playable isometric
+action RPG that captures the core feel of Diablo 2:
+
+- **7 character classes**: Amazon, Sorceress, Necromancer, Paladin, Barbarian,
+  Druid, Assassin — each with unique base stats and skill trees
+- **Random dungeon generation**: Rooms, corridors, stairs, waypoints, chests,
+  and breakable objects, procedurally generated from a seed
+- **Item system**: Normal, magic, rare, set, and unique items with affixes and
+  reverse-engineered data tables (weapons, armor, jewelry, uniques, sets)
+- **Skills**: Fire bolt, ice bolt, lightning, heal, and class-specific skills
+  with mana costs and cooldowns
+- **Combat**: Click-to-move, melee and ranged attacks, damage types
+  (physical/fire/cold/lightning/poison/magic), resistances, and monster AI
+- **Character progression**: Level up, stat points, skill points, experience
+- **Towns and dungeons**: Rogue Encampment, Cold Plains, Catacombs, Cathedral,
+  and more, with act bosses (Andariel, Duriel, Mephisto, Diablo, Baal)
+
+The game is a single `index.html` — open it in any browser and play offline,
+no engine installation required. Use "Export for web" to package it as a PWA
+zip with install-to-home-screen support on iPhone, Android, and desktop.
+
 ---
 
 ## Project structure
@@ -207,12 +237,15 @@ vibe-create/
 ├── scripts/
 │   ├── workbench_server.py     # Local HTTP workbench + API + export endpoints
 │   ├── generate_sandbox.py     # Godot 4 side-scrolling sandbox + HTML5 port
+│   ├── generate_diablo2.py     # Diablo 2-style isometric action RPG generator
 │   ├── idea_to_game.py         # Quest RPG browser prototype
 │   ├── local_game_planner.py   # Ollama game-content planner
 │   ├── local_pixel_art_review.py # Local vision review of pixel art
 │   ├── local_visual_review.py  # Local vision review of Blender renders
 │   ├── project_adapter.py      # Unreal project inspection & staging
 │   ├── pwa_export.py           # PWA package builder (manifest, SW, icons)
+│   ├── diablo2_data.py         # Reverse-engineered D2 data tables (items, skills, monsters, areas)
+│   └── diablo2_mapgen.py       # Random dungeon/town map generator
 │   └── web_sandbox_export.py   # HTML5 canvas sandbox generator
 └── web/
     ├── index.html    # Workbench UI
